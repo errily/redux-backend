@@ -1,34 +1,47 @@
-module.exports = app => {
-  const inventory = require("../controllers/inventory.controller.js");
+const {authJwt} = require("../middleware");
+const artilce = require("../controllers/inventory.controller.js");
+const router =  require("express").Router();
 
-    var router =  require("express").Router();
+module.exports = app => {
+    app.use(function (req, res, next) {
+        res.header(
+            "Access-Control-Allow-Headers",
+            "x-access-token,Origin,Content-Type,Accept"
+        ) ;
+ 
+        next(); 
+    });
+   
 
     //create
-    router.post("/", inventory.create);
+    app.post("/api/inventory", [authJwt.verifyToken],artilce.create);
 
     //retrieve all
-    router.get("/",inventory.findAll);
+    app.get("/api/inventory", [authJwt.verifyToken],artilce.findAll);
 
     //retrieve all published 
-    router.get("/published", inventory.findAllPublished);
+    app.get("/api/inventory/published", artilce.findAllPublished);
+
+     //retrieve all inventory user
+     app.get("/api/inventory/usercount", artilce.findArticleUser);
     
     //retrieve all user 
-     router.get("/user/:id", inventory.findAllUser);
+    app.get("/api/inventory/user/:id",[authJwt.verifyToken], artilce.findAllUser);
 
     //retrieve a single inventory
-    router.get("/:id", inventory.findOne);
+    app.get("/api/inventory/:id",[authJwt.verifyToken], artilce.findOne);
 
     //update
-    router.put("/:id", inventory.update);
+    app.put("/api/inventory/:id",[authJwt.verifyToken], artilce.update);
 
     //delete by id 
-    router.delete("/:id", inventory.delete);
+    app.delete("/api/inventory/:id", [authJwt.verifyToken],artilce.delete);
 
-      //delete by id 
-      router.delete("/user/:id", inventory.deleteUser);
+    //delete by id 
+    app.delete("/api/inventory/user/:id", [authJwt.verifyToken],artilce.deleteUser);
 
     //delete all
-    router.delete("/", inventory.deleteAll);
+    app.delete("/api/inventory/",[authJwt.verifyToken], artilce.deleteAll);
 
-  app.use('/api/inventory', router);
+    // app.use('/api/inventory', router);
 };
